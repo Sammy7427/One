@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Fraud Detection System</title>
+  <script src="/_sdk/element_sdk.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0a1628 0%, #1a2942 100%);
+      color: #ffffff;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    .container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    /* Login Page */
+    .login-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100%;
+      padding: 40px 20px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 50px 40px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .shield-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 20px;
+    }
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+      font-size: 14px;
+      color: #a0aec0;
+    }
+
+    .role-selector {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .role-btn {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      color: #ffffff;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .role-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .role-btn.active {
+      background: #00ff88;
+      color: #0a1628;
+      border-color: #00ff88;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      color: #ffffff;
+      font-size: 15px;
+      transition: all 0.3s ease;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #00ff88;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: #00ff88;
+      color: #0a1628;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+
+    .login-btn:hover {
+      background: #00dd77;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 255, 136, 0.3);
+    }
+
+    /* Main App Layout */
+    .app-container {
+      display: none;
+      height: 100%;
+    }
+
+    .app-container.active {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 260px;
+      background: rgba(255, 255, 255, 0.03);
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 30px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-section {
+      padding: 0 24px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logo-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #00ff88;
+    }
+
+    .nav-menu {
+      flex: 1;
+      padding: 20px 0;
+    }
+
+    .nav-item {
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #a0aec0;
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
+    }
+
+    .nav-item.active {
+      background: rgba(0, 255, 136, 0.1);
+      color: #00ff88;
+      border-left: 3px solid #00ff88;
+    }
+
+    .nav-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .logout-section {
+      padding: 20px 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 59, 48, 0.1);
+      color: #ff3b30;
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 59, 48, 0.2);
+    }
+
+    .main-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 40px;
+    }
+
+    .page-header {
+      margin-bottom: 30px;
+    }
+
+    .page-title {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .page-subtitle {
+      font-size: 15px;
+      color: #a0aec0;
+    }
+
+    /* Dashboard Stats */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: #a0aec0;
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .stat-change {
+      font-size: 13px;
+      color: #00ff88;
+    }
+
+    /* Charts Section */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .chart-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chart-header {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .chart-placeholder {
+      height: 200px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #a0aec0;
+    }
+
+    /* Transaction Table */
+    .table-card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .table-header {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .transaction-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .transaction-table th {
+      text-align: left;
+      padding: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #a0aec0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .transaction-table td {
+      padding: 16px 12px;
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .risk-low {
+      background: rgba(0, 255, 136, 0.15);
+      color: #00ff88;
+    }
+
+    .risk-medium {
+      background: rgba(255, 204, 0, 0.15);
+      color: #ffcc00;
+    }
+
+    .risk-high {
+      background: rgba(255, 59, 48, 0.15);
+      color: #ff3b30;
+    }
+
+    /* Alert Cards */
+    .alerts-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .alert-card {
+      background: rgba(255, 59, 48, 0.08);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .alert-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255, 59, 48, 0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .alert-content {
+      flex: 1;
+    }
+
+    .alert-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #ff3b30;
+    }
+
+    .alert-details {
+      font-size: 14px;
+      color: #a0aec0;
+      margin-bottom: 4px;
+    }
+
+    /* Model Insights */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .metric-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .metric-label {
+      font-size: 13px;
+      color: #a0aec0;
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #00ff88;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+      }
+
+      .main-content {
+        padding: 20px;
+      }
+
+      .stats-grid,
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="container"><!-- Login Page -->
+   <div class="login-page" id="loginPage">
+    <div class="login-card">
+     <div class="login-header">
+      <svg class="shield-icon" viewbox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L4 6V12C4 16.55 7.16 20.74 12 22C16.84 20.74 20 16.55 20 12V6L12 2Z" fill="#00ff88" opacity="0.2" /> <path d="M12 2L4 6V12C4 16.55 7.16 20.74 12 22C16.84 20.74 20 16.55 20 12V6L12 2Z" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /> <path d="M9 12L11 14L15 10" stroke="#00ff88" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+      <h1 class="login-title" id="loginProjectTitle">UPI Fraud Detection</h1>
+      <p class="login-subtitle" id="loginTagline">Secure Authentication Portal</p>
+     </div>
+     <div class="role-selector"><button class="role-btn active" data-role="admin">Admin</button> <button class="role-btn" data-role="user">User</button>
+     </div>
+     <form id="loginForm">
+      <div class="input-group"><label class="input-label" for="username">Username</label> <input type="text" id="username" class="input-field" placeholder="Enter username" required>
+      </div>
+      <div class="input-group"><label class="input-label" for="password">Password</label> <input type="password" id="password" class="input-field" placeholder="Enter password" required>
+      </div><button type="submit" class="login-btn">Sign In Securely</button>
+     </form>
+    </div>
+   </div><!-- Main Application -->
+   <div class="app-container" id="appContainer">
+    <aside class="sidebar">
+     <div class="logo-section">
+      <div class="logo-title">
+       🛡️ FraudGuard
+      </div>
+     </div>
+     <nav class="nav-menu">
+      <div class="nav-item active" data-page="dashboard">
+       <svg class="nav-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1" /> <rect x="14" y="3" width="7" height="7" rx="1" /> <rect x="14" y="14" width="7" height="7" rx="1" /> <rect x="3" y="14" width="7" height="7" rx="1" />
+       </svg><span>Dashboard</span>
+      </div>
+      <div class="nav-item" data-page="monitor">
+       <svg class="nav-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /> <path d="M9 12l2 2 4-4" />
+       </svg><span>Transaction Monitor</span>
+      </div>
+      <div class="nav-item" data-page="alerts">
+       <svg class="nav-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /> <line x1="12" y1="9" x2="12" y2="13" /> <line x1="12" y1="17" x2="12.01" y2="17" />
+       </svg><span>Fraud Alerts</span>
+      </div>
+      <div class="nav-item" data-page="insights">
+       <svg class="nav-icon" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10" /> <path d="M12 20V4" /> <path d="M6 20v-6" />
+       </svg><span>Model Insights</span>
+      </div>
+     </nav>
+     <div class="logout-section"><button class="logout-btn" id="logoutBtn">Logout</button>
+     </div>
+    </aside>
+    <main class="main-content"><!-- Dashboard Page -->
+     <div class="page-content" id="dashboardPage">
+      <div class="page-header">
+       <h1 class="page-title">Dashboard Overview</h1>
+       <p class="page-subtitle">Real-time fraud detection analytics and insights</p>
+      </div>
+      <div class="stats-grid">
+       <div class="stat-card">
+        <div class="stat-header"><span class="stat-label" id="totalTransactionsLabel">Total Transactions</span>
+         <div class="stat-icon" style="background: rgba(0, 255, 136, 0.15);">
+          <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
+          </svg>
+         </div>
+        </div>
+        <div class="stat-value">
+         24,567
+        </div>
+        <div class="stat-change">
+         ↑ 12.5% from last week
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-header"><span class="stat-label" id="fraudDetectedLabel">Fraud Detected</span>
+         <div class="stat-icon" style="background: rgba(255, 59, 48, 0.15);">
+          <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          </svg>
+         </div>
+        </div>
+        <div class="stat-value" style="color: #ff3b30;">
+         127
+        </div>
+        <div class="stat-change" style="color: #ff3b30;">
+         ↑ 3 new alerts
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-header"><span class="stat-label" id="accuracyLabel">Model Accuracy</span>
+         <div class="stat-icon" style="background: rgba(0, 122, 255, 0.15);">
+          <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#007aff" stroke-width="2"><circle cx="12" cy="12" r="10" /> <path d="M12 6v6l4 2" />
+          </svg>
+         </div>
+        </div>
+        <div class="stat-value" style="color: #007aff;">
+         98.7%
+        </div>
+        <div class="stat-change">
+         ↑ 0.3% improvement
+        </div>
+       </div>
+       <div class="stat-card">
+        <div class="stat-header"><span class="stat-label" id="alertsLabel">Active Alerts</span>
+         <div class="stat-icon" style="background: rgba(255, 204, 0, 0.15);">
+          <svg width="20" height="20" viewbox="0 0 24 24" fill="none" stroke="#ffcc00" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" /> <path d="M13.73 21a2 2 0 01-3.46 0" />
+          </svg>
+         </div>
+        </div>
+        <div class="stat-value" style="color: #ffcc00;">
+         8
+        </div>
+        <div class="stat-change" style="color: #ffcc00;">
+         Requires attention
+        </div>
+       </div>
+      </div>
+      <div class="charts-grid">
+       <div class="chart-card">
+        <div class="chart-header">
+         Transaction Volume Trend
+        </div>
+        <div class="chart-placeholder">
+         <svg width="100%" height="100%" viewbox="0 0 400 180"><polyline points="20,140 60,120 100,130 140,90 180,100 220,70 260,80 300,50 340,60 380,40" fill="none" stroke="#00ff88" stroke-width="3" opacity="0.8" /> <polyline points="20,140 60,120 100,130 140,90 180,100 220,70 260,80 300,50 340,60 380,40 380,180 20,180" fill="url(#gradient)" opacity="0.3" /> <defs>
+           <lineargradient id="gradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#00ff88;stop-opacity:0.5" />
+            <stop offset="100%" style="stop-color:#00ff88;stop-opacity:0" />
+           </lineargradient>
+          </defs>
+         </svg>
+        </div>
+       </div>
+       <div class="chart-card">
+        <div class="chart-header">
+         Fraud Detection Rate
+        </div>
+        <div class="chart-placeholder">
+         <svg width="100%" height="100%" viewbox="0 0 400 180"><rect x="40" y="100" width="40" height="60" fill="#00ff88" opacity="0.8" rx="4" /> <rect x="100" y="80" width="40" height="80" fill="#00ff88" opacity="0.8" rx="4" /> <rect x="160" y="120" width="40" height="40" fill="#ffcc00" opacity="0.8" rx="4" /> <rect x="220" y="90" width="40" height="70" fill="#00ff88" opacity="0.8" rx="4" /> <rect x="280" y="60" width="40" height="100" fill="#ff3b30" opacity="0.8" rx="4" />
+         </svg>
+        </div>
+       </div>
+      </div>
+     </div><!-- Transaction Monitor Page -->
+     <div class="page-content hidden" id="monitorPage">
+      <div class="page-header">
+       <h1 class="page-title">Transaction Monitor</h1>
+       <p class="page-subtitle">Real-time UPI transaction monitoring with risk assessment</p>
+      </div>
+      <div class="table-card">
+       <div class="table-header">
+        Recent Transactions
+       </div>
+       <table class="transaction-table">
+        <thead>
+         <tr>
+          <th>Transaction ID</th>
+          <th>Timestamp</th>
+          <th>Amount</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Risk Score</th>
+         </tr>
+        </thead>
+        <tbody>
+         <tr>
+          <td>#TXN-8472</td>
+          <td>2024-01-15 14:32:18</td>
+          <td>₹2,450</td>
+          <td>user@bank</td>
+          <td>merchant@upi</td>
+          <td><span class="risk-badge risk-low">Low</span></td>
+         </tr>
+         <tr>
+          <td>#TXN-8471</td>
+          <td>2024-01-15 14:28:45</td>
+          <td>₹15,000</td>
+          <td>account@bank</td>
+          <td>unknown@upi</td>
+          <td><span class="risk-badge risk-high">High</span></td>
+         </tr>
+         <tr>
+          <td>#TXN-8470</td>
+          <td>2024-01-15 14:25:12</td>
+          <td>₹5,200</td>
+          <td>customer@bank</td>
+          <td>shop@upi</td>
+          <td><span class="risk-badge risk-medium">Medium</span></td>
+         </tr>
+         <tr>
+          <td>#TXN-8469</td>
+          <td>2024-01-15 14:20:33</td>
+          <td>₹890</td>
+          <td>buyer@bank</td>
+          <td>store@upi</td>
+          <td><span class="risk-badge risk-low">Low</span></td>
+         </tr>
+         <tr>
+          <td>#TXN-8468</td>
+          <td>2024-01-15 14:15:07</td>
+          <td>₹25,000</td>
+          <td>sender@bank</td>
+          <td>receiver@upi</td>
+          <td><span class="risk-badge risk-high">High</span></td>
+         </tr>
+         <tr>
+          <td>#TXN-8467</td>
+          <td>2024-01-15 14:10:22</td>
+          <td>₹3,100</td>
+          <td>payer@bank</td>
+          <td>payee@upi</td>
+          <td><span class="risk-badge risk-low">Low</span></td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div><!-- Fraud Alerts Page -->
+     <div class="page-content hidden" id="alertsPage">
+      <div class="page-header">
+       <h1 class="page-title">Fraud Alerts</h1>
+       <p class="page-subtitle">Flagged transactions requiring immediate attention</p>
+      </div>
+      <div class="alerts-grid">
+       <div class="alert-card">
+        <div class="alert-icon">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /> <line x1="12" y1="9" x2="12" y2="13" /> <line x1="12" y1="17" x2="12.01" y2="17" />
+         </svg>
+        </div>
+        <div class="alert-content">
+         <div class="alert-title">
+          Suspicious Transaction Pattern Detected
+         </div>
+         <div class="alert-details">
+          <strong>Transaction ID:</strong> #TXN-8471
+         </div>
+         <div class="alert-details">
+          <strong>Timestamp:</strong> 2024-01-15 14:28:45
+         </div>
+         <div class="alert-details">
+          <strong>Reason:</strong> Multiple high-value transactions from new account within 1 hour
+         </div>
+        </div>
+       </div>
+       <div class="alert-card">
+        <div class="alert-icon">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /> <line x1="12" y1="9" x2="12" y2="13" /> <line x1="12" y1="17" x2="12.01" y2="17" />
+         </svg>
+        </div>
+        <div class="alert-content">
+         <div class="alert-title">
+          Unusual Geographic Location
+         </div>
+         <div class="alert-details">
+          <strong>Transaction ID:</strong> #TXN-8468
+         </div>
+         <div class="alert-details">
+          <strong>Timestamp:</strong> 2024-01-15 14:15:07
+         </div>
+         <div class="alert-details">
+          <strong>Reason:</strong> Transaction initiated from location 500km away from usual pattern
+         </div>
+        </div>
+       </div>
+       <div class="alert-card">
+        <div class="alert-icon">
+         <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /> <line x1="12" y1="9" x2="12" y2="13" /> <line x1="12" y1="17" x2="12.01" y2="17" />
+         </svg>
+        </div>
+        <div class="alert-content">
+         <div class="alert-title">
+          Velocity Check Failed
+         </div>
+         <div class="alert-details">
+          <strong>Transaction ID:</strong> #TXN-8465
+         </div>
+         <div class="alert-details">
+          <strong>Timestamp:</strong> 2024-01-15 14:05:33
+         </div>
+         <div class="alert-details">
+          <strong>Reason:</strong> 8 transactions attempted within 5 minutes exceeding velocity threshold
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Model Insights Page -->
+     <div class="page-content hidden" id="insightsPage">
+      <div class="page-header">
+       <h1 class="page-title">Model Insights</h1>
+       <p class="page-subtitle">Machine learning performance metrics and fraud trend analysis</p>
+      </div>
+      <div class="metrics-grid">
+       <div class="metric-card">
+        <div class="metric-label">
+         Precision
+        </div>
+        <div class="metric-value">
+         96.8%
+        </div>
+       </div>
+       <div class="metric-card">
+        <div class="metric-label">
+         Recall
+        </div>
+        <div class="metric-value">
+         94.2%
+        </div>
+       </div>
+       <div class="metric-card">
+        <div class="metric-label">
+         Accuracy
+        </div>
+        <div class="metric-value">
+         98.7%
+        </div>
+       </div>
+       <div class="metric-card">
+        <div class="metric-label">
+         F1 Score
+        </div>
+        <div class="metric-value">
+         95.5%
+        </div>
+       </div>
+      </div>
+      <div class="chart-card">
+       <div class="chart-header">
+        Fraud Detection Trend (Last 30 Days)
+       </div>
+       <div class="chart-placeholder">
+        <svg width="100%" height="100%" viewbox="0 0 800 200"><polyline points="40,160 100,150 160,140 220,155 280,145 340,130 400,125 460,135 520,120 580,110 640,115 700,105 760,100" fill="none" stroke="#ff3b30" stroke-width="3" opacity="0.8" /> <polyline points="40,160 100,150 160,140 220,155 280,145 340,130 400,125 460,135 520,120 580,110 640,115 700,105 760,100 760,200 40,200" fill="url(#redGradient)" opacity="0.2" /> <defs>
+          <lineargradient id="redGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+           <stop offset="0%" style="stop-color:#ff3b30;stop-opacity:0.5" />
+           <stop offset="100%" style="stop-color:#ff3b30;stop-opacity:0" />
+          </lineargradient>
+         </defs>
+        </svg>
+       </div>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: "#0a1628",
+      surface_color: "#1a2942",
+      text_color: "#ffffff",
+      primary_action_color: "#00ff88",
+      secondary_action_color: "#007aff",
+      project_title: "UPI Fraud Detection",
+      tagline: "Secure Authentication Portal",
+      total_transactions_label: "Total Transactions",
+      fraud_detected_label: "Fraud Detected",
+      accuracy_label: "Model Accuracy",
+      alerts_label: "Active Alerts"
+    };
+
+    let selectedRole = 'admin';
+
+    async function onConfigChange(config) {
+      const projectTitle = config.project_title || defaultConfig.project_title;
+      const tagline = config.tagline || defaultConfig.tagline;
+      const totalTransactionsLabel = config.total_transactions_label || defaultConfig.total_transactions_label;
+      const fraudDetectedLabel = config.fraud_detected_label || defaultConfig.fraud_detected_label;
+      const accuracyLabel = config.accuracy_label || defaultConfig.accuracy_label;
+      const alertsLabel = config.alerts_label || defaultConfig.alerts_label;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryActionColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+      document.getElementById('loginProjectTitle').textContent = projectTitle;
+      document.getElementById('loginTagline').textContent = tagline;
+      document.getElementById('totalTransactionsLabel').textContent = totalTransactionsLabel;
+      document.getElementById('fraudDetectedLabel').textContent = fraudDetectedLabel;
+      document.getElementById('accuracyLabel').textContent = accuracyLabel;
+      document.getElementById('alertsLabel').textContent = alertsLabel;
+
+      document.body.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${surfaceColor} 100%)`;
+      document.body.style.color = textColor;
+
+      const loginBtn = document.querySelector('.login-btn');
+      if (loginBtn) {
+        loginBtn.style.backgroundColor = primaryActionColor;
+      }
+
+      const activeRoleBtn = document.querySelector('.role-btn.active');
+      if (activeRoleBtn) {
+        activeRoleBtn.style.backgroundColor = primaryActionColor;
+        activeRoleBtn.style.borderColor = primaryActionColor;
+      }
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+              set: (value) => {
+                config.secondary_action_color = value;
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["project_title", config.project_title || defaultConfig.project_title],
+          ["tagline", config.tagline || defaultConfig.tagline],
+          ["total_transactions_label", config.total_transactions_label || defaultConfig.total_transactions_label],
+          ["fraud_detected_label", config.fraud_detected_label || defaultConfig.fraud_detected_label],
+          ["accuracy_label", config.accuracy_label || defaultConfig.accuracy_label],
+          ["alerts_label", config.alerts_label || defaultConfig.alerts_label]
+        ])
+      });
+    }
+
+    document.querySelectorAll('.role-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        selectedRole = this.dataset.role;
+      });
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('loginPage').style.display = 'none';
+      document.getElementById('appContainer').classList.add('active');
+    });
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', function() {
+        document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+        this.classList.add('active');
+
+        const page = this.dataset.page;
+        document.querySelectorAll('.page-content').forEach(p => p.classList.add('hidden'));
+        document.getElementById(page + 'Page').classList.remove('hidden');
+      });
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      document.getElementById('appContainer').classList.remove('active');
+      document.getElementById('loginPage').style.display = 'flex';
+      document.getElementById('loginForm').reset();
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'998ac744723c8b09',t:'MTc2MjE2MTQ0NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>l̥l̥
